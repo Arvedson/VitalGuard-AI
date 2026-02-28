@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/* Force class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  /* Colors — direct values, no var() indirection issues */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+
+  --color-primary: #16a34a;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #1e293b;
+  --color-secondary-foreground: #ffffff;
+
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+
+  --color-accent: #f0fdf4;
+  --color-accent-foreground: #14532d;
+
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #16a34a;
+
+  --color-chart-1: #16a34a;
+  --color-chart-2: #0ea5e9;
+  --color-chart-3: #f59e0b;
+  --color-chart-4: #8b5cf6;
+  --color-chart-5: #ec4899;
+
+  --color-sidebar: #f8fafc;
+  --color-sidebar-foreground: #0f172a;
+  --color-sidebar-primary: #16a34a;
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: #f0fdf4;
+  --color-sidebar-accent-foreground: #14532d;
+  --color-sidebar-border: #e2e8f0;
+  --color-sidebar-ring: #16a34a;
+
+  --radius-lg: 0.625rem;
+  --radius-md: 0.425rem;
+  --radius-sm: 0.225rem;
+  --radius-xl: 1.025rem;
+
+  --font-sans: var(--font-inter);
+
+  --animate-fade-in: fade-in 0.5s ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* CSS variables for inline style usage (e.g. HealthScoreGauge) */
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #16a34a;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f0fdf4;
+  --accent-foreground: #14532d;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #16a34a;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Glass morphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}

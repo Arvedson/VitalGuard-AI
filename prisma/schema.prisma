@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+enum PatientSegment {
+  GENERAL
+  CHILD
+  ADULT
+  ELDERLY
+  CHRONIC_HYPERTENSION
+  CHRONIC_DIABETES
+  CHRONIC_OBESITY
+  PREGNANCY
+}
+
+enum HealthStatus {
+  GREEN
+  YELLOW
+  RED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String?
+  role          UserRole  @default(PATIENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  patient       Patient?
+  doctor        Doctor?
+}
+
+enum UserRole {
+  ADMIN
+  DOCTOR
+  PATIENT
+}
+
+model Doctor {
+  id                String   @id @default(cuid())
+  userId            String?  @unique
+  user              User?    @relation(fields: [userId], references: [id])
+  name              String
+  specialty         String?
+  licenseNumber     String?
+  inviteCode        String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  patients          Patient[]
+}
+
+model Patient {
+  id                String         @id @default(cuid())
+  userId            String?        @unique
+  user              User?          @relation(fields: [userId], references: [id])
+  doctorId          String?
+  doctor            Doctor?        @relation(fields: [doctorId], references: [id])
+  name              String
+  email             String?        @unique
+  birthDate         DateTime
+  gender            String
+  segment           PatientSegment @default(GENERAL)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Medical History
+  heredity          String?        // Family history
+  habits            String?        // Smoking, alcohol, etc.
+  environment       String?        // Living conditions
+  immunizations     Json?          // List of vaccines
+
+  // Relations
+  vitals            VitalSign[]
+  symptoms          SymptomLog[]
+  intake           MedicalIntake?
+  healthScores      HealthScore[]
+  aiDiagnoses       AIDiagnosis[]
+}
+
+model VitalSign {
+  id                String   @id @default(cuid())
+  patientId         String
+  patient           Patient  @relation(fields: [patientId], references: [id])
+  timestamp         DateTime @default(now())
+
+  // General Vitals
+  systolicBP        Float?   // mm Hg
+  diastolicBP       Float?   // mm Hg
+  heartRate         Float?   // bpm
+  respiratoryRate   Float?   // breaths/min
+  temperature       Float?   // °C
+  spo2              Float?   // %
+
+  // Metabolic
+  glucose           Float?   // mg/dL
+  weight            Float?   // kg
+  height            Float?   // cm
+  bmi               Float?
+
+  // Specialized
+  fetalHeartRate    Float?   // bpm (Pregnancy)
+  urineResults      Json?    // Pregnancy tests
+
+  // ECG (Simplified visualization data)
+  ecgData           Json?    // Points for visualization
+
+  status            HealthStatus @default(GREEN)
+}
+
+model MedicalIntake {
+  id                String   @id @default(cuid())
+  patientId         String   @unique
+  patient           Patient  @relation(fields: [patientId], references: [id])
+  
+  initialVisual     Json?  // Habitus Exterior
+  familyHistory     String?
+  personalHabits    String?
+  immunizationRecord Json?
+  
+  lastUpdated       DateTime @updatedAt
+}
+
+model SymptomLog {
+  id                String   @id @default(cuid())
+  patientId         String
+  patient           Patient  @relation(fields: [patientId], references: [id])
+  timestamp         DateTime @default(now())
+
+  location          String   // Pain location
+  irradiation       String?  // Where pain moves
+  intensity         Int      // 1-10 scale
+  description       String?
+}
+
+model HealthScore {
+  id                String       @id @default(cuid())
+  patientId         String
+  patient           Patient      @relation(fields: [patientId], references: [id])
+  timestamp         DateTime     @default(now())
+  
+  score             Float        // 0-100
+  status            HealthStatus
+  aiAdvice          String?      // Brief actionable insight
+  trend             String?      // AI behavior prediction
+}
+
+enum AlertLevel {
+  LOW
+  MODERATE
+  HIGH
+}
+
+model AIDiagnosis {
+  id                  String      @id @default(cuid())
+  patientId           String
+  patient             Patient     @relation(fields: [patientId], references: [id])
+  timestamp           DateTime    @default(now())
+
+  // Input snapshot
+  inputData           Json        // Snapshot of vitals/symptoms sent to the model
+
+  // Output
+  healthSummary       String      // General summary of current state
+  predictions         Json        // Array of trend predictions
+  habitImprovements   Json        // Array of lifestyle suggestions
+  alertLevel          AlertLevel  @default(LOW)
+  doctorNote          String?     // Brief technical note for the doctor
+  disclaimer          String      @default("This is a wellness analysis, not medical advice. Consult your healthcare provider for diagnosis and treatment.")
+
+  // Doctor-only clinical fields (NOT shown to patients)
+  clinicalSummary     String?     // Clinical assessment in medical language
+  differentialNotes   Json?       // Differential considerations, flagged lab patterns
+  clinicalFlags       Json?       // Specific metrics/patterns flagged for the physician
+
+  // Chain reference
+  previousDiagnosisId String?     @unique
+  previousDiagnosis   AIDiagnosis? @relation("DiagnosisChain", fields: [previousDiagnosisId], references: [id])
+  nextDiagnosis       AIDiagnosis? @relation("DiagnosisChain")
+}
