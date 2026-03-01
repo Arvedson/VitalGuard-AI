@@ -3,19 +3,23 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function getDoctorDashboardData() {
-  const session = await auth();
+// ── Helper ──────────────────────────────────────────────────────────
 
+async function getDoctorId() {
+  const session = await auth();
   if (!session?.user || (session.user as any).role !== "DOCTOR") {
     throw new Error("Unauthorized");
   }
-
   const doctorId = (session.user as any).doctorId;
-  if (!doctorId) {
-    throw new Error("Doctor profile not found.");
-  }
+  if (!doctorId) throw new Error("Doctor profile not found.");
+  return doctorId;
+}
 
-  // Fetch doctor details and their patients
+// ── Dashboard Data ──────────────────────────────────────────────────
+
+export async function getDoctorDashboardData() {
+  const doctorId = await getDoctorId();
+
   const doctor = await (prisma as any).doctor.findUnique({
     where: { id: doctorId },
     include: {
@@ -24,7 +28,24 @@ export async function getDoctorDashboardData() {
           vitals: { orderBy: { timestamp: "desc" }, take: 1 },
           healthScores: { orderBy: { timestamp: "desc" }, take: 1 },
           aiDiagnoses: { orderBy: { timestamp: "desc" }, take: 1 },
+          reviews: { orderBy: { createdAt: "desc" }, take: 1 },
+          appointments: {
+            where: { status: "SCHEDULED" },
+            orderBy: { scheduledAt: "asc" },
+            take: 1,
+          },
         },
+      },
+      appointments: {
+        where: {
+          status: "SCHEDULED",
+          scheduledAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)),
+            lt: new Date(new Date().setHours(23, 59, 59, 999)),
+          },
+        },
+        include: { patient: { select: { id: true, name: true } } },
+        orderBy: { scheduledAt: "asc" },
       },
     },
   });
@@ -40,12 +61,25 @@ export async function getDoctorDashboardData() {
     const latestScoreInfo = p.healthScores[0];
     const latestVitals = p.vitals[0];
     const latestAI = p.aiDiagnoses[0];
+    const latestReview = p.reviews[0];
+    const nextAppointment = p.appointments[0];
 
     const currentStatus = latestScoreInfo?.status || latestVitals?.status || "GREEN";
     const aiAlertLevel = latestAI?.alertLevel || null;
 
     if (currentStatus === "RED" || currentStatus === "YELLOW") criticalPatients++;
     if (aiAlertLevel === "HIGH") aiHighAlerts++;
+
+    // A patient needs review if their latest data is newer than the latest review
+    const latestDataTime = Math.max(
+      latestVitals?.timestamp?.getTime() || 0,
+      latestAI?.timestamp?.getTime() || 0,
+      latestScoreInfo?.timestamp?.getTime() || 0
+    );
+    const latestReviewTime = latestReview?.createdAt?.getTime() || 0;
+    const isReviewed = latestReviewTime >= latestDataTime && latestDataTime > 0;
+
+    if (!isReviewed && latestDataTime > 0) pendingReviews++;
 
     return {
       id: p.id,
@@ -55,6 +89,15 @@ export async function getDoctorDashboardData() {
       aiAlertLevel,
       lastUpdate: latestVitals?.timestamp || p.updatedAt,
       lastInsightAt: latestAI?.timestamp || null,
+      isReviewed,
+      nextAppointment: nextAppointment
+        ? {
+            id: nextAppointment.id,
+            type: nextAppointment.type,
+            scheduledAt: nextAppointment.scheduledAt,
+            notes: nextAppointment.notes,
+          }
+        : null,
     };
   });
 
@@ -73,9 +116,20 @@ export async function getDoctorDashboardData() {
       const aScore = ((aiWeight as any)[a.aiAlertLevel ?? "LOW"] ?? 2) + ((statusWeight as any)[a.status] ?? 2);
       const bScore = ((aiWeight as any)[b.aiAlertLevel ?? "LOW"] ?? 2) + ((statusWeight as any)[b.status] ?? 2);
       return aScore - bScore;
-    })
+    }),
+    todayAppointments: doctor.appointments.map((a: any) => ({
+      id: a.id,
+      patientId: a.patient.id,
+      patientName: a.patient.name,
+      type: a.type,
+      scheduledAt: a.scheduledAt,
+      notes: a.notes,
+      status: a.status,
+    })),
   };
 }
+
+// ── Invite Code ─────────────────────────────────────────────────────
 
 export async function generateInviteCode() {
   const session = await auth();
@@ -87,7 +141,6 @@ export async function generateInviteCode() {
   const doctorId = (session.user as any).doctorId;
   if (!doctorId) return { error: "Doctor profile not found." };
 
-  // Generate a random 6-character alphanumeric code
   const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
   try {
@@ -100,6 +153,86 @@ export async function generateInviteCode() {
     return { error: "Failed to generate invite code" };
   }
 }
+
+// ── Mark Patient Reviewed ───────────────────────────────────────────
+
+export async function markPatientReviewed(patientId: string, type: string, notes?: string) {
+  const doctorId = await getDoctorId();
+
+  // Verify the patient belongs to the doctor
+  const patient = await prisma.patient.findFirst({
+    where: { id: patientId, doctorId },
+  });
+  if (!patient) return { error: "Patient not found or not assigned to you." };
+
+  try {
+    await (prisma as any).patientReview.create({
+      data: {
+        patientId,
+        doctorId,
+        type,
+        notes: notes || null,
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to mark as reviewed." };
+  }
+}
+
+// ── Schedule Appointment ────────────────────────────────────────────
+
+export async function scheduleAppointment(
+  patientId: string,
+  type: string,
+  scheduledAt: string,
+  notes?: string
+) {
+  const doctorId = await getDoctorId();
+
+  const patient = await prisma.patient.findFirst({
+    where: { id: patientId, doctorId },
+  });
+  if (!patient) return { error: "Patient not found or not assigned to you." };
+
+  try {
+    const appointment = await (prisma as any).appointment.create({
+      data: {
+        patientId,
+        doctorId,
+        type,
+        scheduledAt: new Date(scheduledAt),
+        notes: notes || null,
+      },
+    });
+    return { success: true, appointment };
+  } catch (error) {
+    return { error: "Failed to schedule appointment." };
+  }
+}
+
+// ── Update Appointment Status ───────────────────────────────────────
+
+export async function updateAppointmentStatus(appointmentId: string, status: string) {
+  const doctorId = await getDoctorId();
+
+  try {
+    const appointment = await (prisma as any).appointment.findFirst({
+      where: { id: appointmentId, doctorId },
+    });
+    if (!appointment) return { error: "Appointment not found." };
+
+    await (prisma as any).appointment.update({
+      where: { id: appointmentId },
+      data: { status },
+    });
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update appointment." };
+  }
+}
+
+// ── Patient Details ─────────────────────────────────────────────────
 
 export async function getPatientDetails(patientId: string) {
   const session = await auth();

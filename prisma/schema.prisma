@@ -60,6 +60,8 @@ model Doctor {
   updatedAt         DateTime @updatedAt
 
   patients          Patient[]
+  reviews           PatientReview[]
+  appointments      Appointment[]
 }
 
 model Patient {
@@ -88,6 +90,8 @@ model Patient {
   intake           MedicalIntake?
   healthScores      HealthScore[]
   aiDiagnoses       AIDiagnosis[]
+  reviews           PatientReview[]
+  appointments      Appointment[]
 }
 
 model VitalSign {
@@ -189,4 +193,50 @@ model AIDiagnosis {
   previousDiagnosisId String?     @unique
   previousDiagnosis   AIDiagnosis? @relation("DiagnosisChain", fields: [previousDiagnosisId], references: [id])
   nextDiagnosis       AIDiagnosis? @relation("DiagnosisChain")
+}
+
+// ── Doctor Workflow Models ──────────────────────────────────────────
+
+enum ReviewType {
+  VITALS_REVIEWED
+  ALERT_DISMISSED
+  INTAKE_REVIEWED
+  GENERAL_REVIEW
+}
+
+model PatientReview {
+  id         String     @id @default(cuid())
+  patientId  String
+  patient    Patient    @relation(fields: [patientId], references: [id])
+  doctorId   String
+  doctor     Doctor     @relation(fields: [doctorId], references: [id])
+  type       ReviewType
+  notes      String?
+  createdAt  DateTime   @default(now())
+}
+
+enum AppointmentType {
+  IN_PERSON
+  CALL
+  VIDEO_CALL
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+model Appointment {
+  id          String            @id @default(cuid())
+  patientId   String
+  patient     Patient           @relation(fields: [patientId], references: [id])
+  doctorId    String
+  doctor      Doctor            @relation(fields: [doctorId], references: [id])
+  type        AppointmentType
+  status      AppointmentStatus @default(SCHEDULED)
+  scheduledAt DateTime
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
