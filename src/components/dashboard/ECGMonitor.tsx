@@ -4,20 +4,19 @@ import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Activity } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { TapTempoButton } from "@/components/ui/tap-tempo-button";
-import { useTapTempo } from "@/hooks/use-tap-tempo";
 
-export function ECGMonitor() {
+
+export function ECGMonitor({ heartRate }: { heartRate?: number | null }) {
   const t = useTranslations("ECG");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  const [bpm, setBpm] = useState<number | null>(null);
-  const bpmRef = useRef<number>(60);
+  const bpmRef = useRef<number>(heartRate || 60);
 
-  const { handleTap } = useTapTempo((newBpm) => {
-    setBpm(newBpm);
-    bpmRef.current = newBpm;
-  });
+  useEffect(() => {
+    if (heartRate) {
+      bpmRef.current = heartRate;
+    }
+  }, [heartRate]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -106,14 +105,14 @@ export function ECGMonitor() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-bold flex items-center gap-2">
             <Activity className="w-4 h-4 text-primary animate-pulse" />
-            {bpm ? `${bpm} BPM` : t("liveMonitor")}
+            {heartRate ? `${heartRate} BPM` : t("liveMonitor", { fallback: "Live ECG Monitor" })}
           </CardTitle>
           <span className="text-[10px] font-black uppercase text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-            {t("leadII")}
+            {t("leadII", { fallback: "Lead II" })}
           </span>
         </div>
         <CardDescription className="text-[10px]">
-          {t("simRhythm") || "Calcula tu pulso de manera interactiva"}
+          {heartRate ? t("patientRecord", { fallback: "Último registro del paciente" }) : t("simRhythm", { fallback: "Ritmo simulado" })}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -123,7 +122,6 @@ export function ECGMonitor() {
           height={120} 
           className="w-full h-[120px] rounded-lg bg-black/5"
         />
-        <TapTempoButton onTap={handleTap} />
       </CardContent>
     </Card>
   );

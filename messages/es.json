@@ -253,7 +253,8 @@
     "qrs": "QRS",
     "liveMonitor": "Monitor ECG en Vivo",
     "leadII": "Derivación II",
-    "simRhythm": "Simulación de ritmo sinusal en tiempo real."
+    "simRhythm": "Simulación de ritmo sinusal en tiempo real.",
+    "patientRecord": "Último registro del paciente"
   },
   "Profile": {
     "personalInfo": "Información Personal",

@@ -253,7 +253,8 @@
     "qrs": "QRS",
     "liveMonitor": "Live ECG Monitor",
     "leadII": "Lead II",
-    "simRhythm": "Real-time sinus rhythm simulation."
+    "simRhythm": "Real-time sinus rhythm simulation.",
+    "patientRecord": "Latest patient record"
   },
   "Profile": {
     "personalInfo": "Personal Information",

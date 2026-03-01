@@ -2,10 +2,28 @@ import { AddVitalsForm } from "@/components/vitals/AddVitalsForm";
 import { ECGVisualization } from "@/components/vitals/ECGVisualization";
 import { Activity, History, Heart } from "lucide-react";
 
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default function VitalsPage() {
-  const t = useTranslations("Vitals");
+export default async function VitalsPage() {
+  const t = await getTranslations("Vitals");
+
+  const session = await auth();
+  const patientId = (session?.user as any)?.patientId;
+  let latestVitals = null;
+  
+  if (patientId) {
+    const vitals = await prisma.vitalSign.findMany({
+      where: { patientId },
+      orderBy: { timestamp: 'desc' },
+      take: 1,
+    });
+    if (vitals.length > 0) {
+      latestVitals = vitals[0];
+    }
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-10">
@@ -72,7 +90,7 @@ export default function VitalsPage() {
             </ul>
           </div>
 
-          <ECGVisualization />
+          <ECGVisualization latestVitals={latestVitals} />
         </div>
       </div>
     </div>

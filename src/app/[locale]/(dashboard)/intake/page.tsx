@@ -48,15 +48,6 @@ export default async function IntakePage() {
         <div className="lg:col-span-4 space-y-10">
           <HabitusExterior initialData={initialVisual as any} />
           
-          <div className="p-6 bg-danger/10 border border-danger/20 rounded-3xl space-y-4">
-            <div className="flex items-center gap-2 text-danger">
-              <ShieldAlert className="w-5 h-5" />
-              <h3 className="font-black uppercase tracking-widest text-xs">{t("emergencyAlert")}</h3>
-            </div>
-            <p className="text-sm text-danger/80 leading-relaxed font-medium">
-              {t("emergencyText")}
-            </p>
-          </div>
 
           <div className="p-6 glass rounded-3xl space-y-4">
             <h3 className="font-bold text-lg">{t("privacyData")}</h3>

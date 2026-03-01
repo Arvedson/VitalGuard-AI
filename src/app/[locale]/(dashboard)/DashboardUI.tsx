@@ -31,11 +31,21 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
   const titleMain = titleParts[0] || "";
   const titleItalic = titleParts.slice(1).join(" ");
 
+  const vitalsData = React.useMemo(() => {
+    if (!initialData?.latestVitals || !Array.isArray(initialData.latestVitals)) return [];
+    return [...initialData.latestVitals].reverse().map((v: any) => ({
+      time: new Date(v.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      heartRate: v.heartRate,
+      bp: v.systolicBP
+    }));
+  }, [initialData?.latestVitals]);
+
   const stats = [
+    { label: t("heartRate", { fallback: "Heart Rate" }), value: initialData?.latestVitals?.[0]?.heartRate || "N/A", unit: "bpm", trend: "stable", change: "0%" },
     { label: t("bloodPressure"), value: initialData?.latestVitals?.[0] ? `${initialData.latestVitals[0].systolicBP}/${initialData.latestVitals[0].diastolicBP}` : "N/A", unit: "mmHg", trend: "stable", change: "0%" },
+    { label: t("spo2"), value: initialData?.latestVitals?.[0]?.spo2 || "N/A", unit: "%", trend: "stable", change: "0%" },
     { label: t("glucose"), value: initialData?.latestVitals?.[0]?.glucose || "N/A", unit: "mg/dL", trend: "stable", change: "0%" },
     { label: t("weight"), value: initialData?.latestVitals?.[0]?.weight || "N/A", unit: "kg", trend: "stable", change: "0%" },
-    { label: t("spo2"), value: initialData?.latestVitals?.[0]?.spo2 || "N/A", unit: "%", trend: "stable", change: "0%" },
   ];
 
   const isProfileComplete = initialData?.patientProfile?.isProfileComplete;
@@ -106,7 +116,7 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
           {/* Right Column - Stats & Charts */}
           <div className="xl:col-span-8 space-y-10">
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
               {stats.map((stat, i) => (
                 <motion.div
                   key={stat.label}
@@ -138,8 +148,8 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
               ))}
             </div>
 
-            <ECGMonitor />
-            <VitalsChart />
+            <ECGMonitor heartRate={initialData?.latestVitals?.[0]?.heartRate} />
+            <VitalsChart data={vitalsData} />
 
             {/* Recent Activity */}
             <Card className="glass border-none shadow-2xl">

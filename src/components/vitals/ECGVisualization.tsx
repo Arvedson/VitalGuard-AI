@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 
 import { useTranslations } from "next-intl";
 
-export function ECGVisualization() {
+export function ECGVisualization({ latestVitals }: { latestVitals?: any }) {
   const [data, setData] = useState<any[]>([]);
   const t = useTranslations("ECG");
 
@@ -55,21 +55,23 @@ export function ECGVisualization() {
   }, []);
 
   return (
-    <Card className="glass border-none shadow-2xl relative overflow-hidden bg-slate-950 text-white min-h-[300px]">
+    <Card className="glass border-none shadow-2xl relative overflow-hidden min-h-[300px]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(13,148,136,0.1),transparent)] pointer-events-none" />
       
-      <CardHeader className="pb-0">
+      <CardHeader className="pb-0 relative z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-rose-500 animate-pulse" />
-            <CardTitle className="text-lg">{t("title")}</CardTitle>
+            <CardTitle className="text-lg text-secondary dark:text-white">{t("title")}</CardTitle>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full">
+          <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
             <div className="w-2 h-2 bg-success rounded-full animate-ping" />
-            <span className="text-[10px] uppercase font-black tracking-widest">{t("monitoring")}</span>
+            <span className="text-[10px] uppercase font-black tracking-widest text-primary">{t("monitoring")}</span>
           </div>
         </div>
-        <CardDescription className="text-slate-400">{t("lead")}</CardDescription>
+        <CardDescription className="text-slate-400">
+          {latestVitals ? t("patientRecord", { fallback: "Último registro de actividad" }) : t("lead")}
+        </CardDescription>
       </CardHeader>
       
       <CardContent className="h-[200px] p-0">
@@ -88,17 +90,23 @@ export function ECGVisualization() {
         
         {/* Grid lines overlay */}
         <div className="absolute inset-x-0 bottom-4 pointer-events-none flex justify-around px-10">
-           <div className="flex flex-col items-center gap-1 opacity-40">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">{t("hr")}</span>
-              <span className="text-xl font-black text-white">72 <span className="text-[10px] text-primary">bpm</span></span>
+           <div className="flex flex-col items-center gap-1 opacity-70">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{t("hr", { fallback: "HR" })}</span>
+              <span className="text-xl font-black text-white">
+                {latestVitals?.heartRate || "--"} <span className="text-[10px] text-primary">bpm</span>
+              </span>
            </div>
-           <div className="flex flex-col items-center gap-1 opacity-40">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">{t("pr")}</span>
-              <span className="text-xl font-black text-white">0.16 <span className="text-[10px] text-primary">s</span></span>
+           <div className="flex flex-col items-center gap-1 opacity-70">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">PA</span>
+              <span className="text-xl font-black text-white">
+                {latestVitals?.systolicBP ? `${latestVitals.systolicBP}/${latestVitals.diastolicBP}` : '--'} <span className="text-[10px] text-primary">mmHg</span>
+              </span>
            </div>
-           <div className="flex flex-col items-center gap-1 opacity-40">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">{t("qrs")}</span>
-              <span className="text-xl font-black text-white">0.08 <span className="text-[10px] text-primary">s</span></span>
+           <div className="flex flex-col items-center gap-1 opacity-70">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">SpO2</span>
+              <span className="text-xl font-black text-white">
+                {latestVitals?.spo2 || "--"} <span className="text-[10px] text-primary">%</span>
+              </span>
            </div>
         </div>
       </CardContent>

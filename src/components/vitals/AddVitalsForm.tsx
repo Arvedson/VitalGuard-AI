@@ -306,11 +306,11 @@ export function AddVitalsForm() {
 
           {/* Metabolic & Specialized - Sidebar style on desktop */}
           <div className="lg:col-span-4 space-y-8">
-            <Card className="glass shadow-xl border-t-4 border-t-accent animate-fade-in [animation-delay:200ms] overflow-hidden">
+            <Card className="glass shadow-xl border-t-4 border-t-fuchsia-500 animate-fade-in [animation-delay:200ms] overflow-hidden">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-accent/10 rounded-lg">
-                    <Scale className="w-5 h-5 text-accent" />
+                  <div className="p-2 bg-fuchsia-500/10 rounded-lg">
+                    <Scale className="w-5 h-5 text-fuchsia-500" />
                   </div>
                   <CardTitle>{t("metabolic")}</CardTitle>
                 </div>
@@ -350,9 +350,9 @@ export function AddVitalsForm() {
                 </div>
 
                 {bmi && (
-                  <div className="p-4 bg-accent/5 border border-accent/20 rounded-xl flex items-center justify-between">
+                  <div className="p-4 bg-fuchsia-500/5 border border-fuchsia-500/20 rounded-xl flex items-center justify-between">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-accent uppercase tracking-wider">{t("calculatedBmi")}</span>
+                      <span className="text-xs font-bold text-fuchsia-500 uppercase tracking-wider">{t("calculatedBmi")}</span>
                       <span className="text-2xl font-black text-secondary dark:text-white">{bmi}</span>
                     </div>
                     <div className={cn(
@@ -420,8 +420,8 @@ export function AddVitalsForm() {
           </div>
         </div>
 
-        <div className="flex justify-end pt-4">
-          <Button type="submit" className="px-10 py-6 text-lg font-bold rounded-2xl transition-all hover:shadow-2xl hover:shadow-primary/30 active:scale-95">
+        <div className="flex flex-col sm:flex-row justify-end pt-4">
+          <Button type="submit" className="w-full sm:w-auto px-10 py-6 text-lg font-bold rounded-2xl transition-all hover:shadow-2xl hover:shadow-primary/30 active:scale-95">
             <Save className="w-5 h-5 mr-2" />
             {t("saveVitals")}
           </Button>
