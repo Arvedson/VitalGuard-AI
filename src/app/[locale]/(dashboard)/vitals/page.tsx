@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { formatRelativeTime } from "@/lib/date-utils";
 
 export default async function VitalsPage() {
   const t = await getTranslations("Vitals");
@@ -24,6 +25,10 @@ export default async function VitalsPage() {
       latestVitals = vitals[0];
     }
   }
+
+  const lastSyncDisplay = latestVitals 
+    ? formatRelativeTime(latestVitals.timestamp)
+    : "---";
 
   return (
     <div className="max-w-7xl mx-auto space-y-10">
@@ -44,7 +49,9 @@ export default async function VitalsPage() {
           </div>
           <div className="px-4 py-2 bg-primary/10 rounded-xl border border-primary/20 flex items-center gap-2">
             <Heart className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-primary italic">{t("lastSync", { time: "2m" })}</span>
+            <span className="text-sm font-semibold text-primary italic">
+              {latestVitals ? t("lastSync", { time: lastSyncDisplay }) : t("status")}
+            </span>
           </div>
         </div>
       </div>
