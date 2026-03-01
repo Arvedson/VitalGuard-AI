@@ -81,7 +81,8 @@
     "healthReport": "Informe de Salud",
     "systemLive": "Sistema en Línea",
     "searchPlaceholder": "Buscar historial, vitales...",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "myDoctor": "Mi Doctor"
   },
   "Auth": {
     "login": "Iniciar Sesión",
@@ -319,6 +320,11 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "todayAgenda": "Agenda de Hoy",
+    "agenda": "Agenda",
+    "upcoming": "Próximas",
+    "history": "Historial",
+    "noUpcomingAppointments": "No tienes citas próximas.",
+    "noHistoryAppointments": "No has completado ni cancelado citas.",
     "noAppointments": "No hay citas programadas para hoy.",
     "inPerson": "Presencial",
     "call": "Llamada",
@@ -381,5 +387,36 @@
     "gait": "Marcha estable",
     "color": "Coloración de piel normal",
     "breathing": "Respiración rítmica"
+  },
+  "MyDoctor": {
+    "title": "Mi",
+    "subtitle": "Doctor",
+    "description": "Gestiona tus citas y mantente en contacto con tu médico.",
+    "noDoctor": "Sin Doctor Asignado",
+    "noDoctorDesc": "Necesitas vincular tu perfil con un doctor para acceder a esta sección.",
+    "linkDoctor": "Vincular Doctor",
+    "generalPractice": "Medicina General",
+    "linked": "VINCULADO",
+    "myAppointments": "Mis Citas",
+    "requestAppointment": "Solicitar Cita",
+    "notifications": "Notificaciones",
+    "noAppointments": "No tienes citas registradas.",
+    "requestFirst": "Solicitar Primera Cita",
+    "requestDesc": "Selecciona el tipo de cita y tu fecha preferida. Tu doctor será notificado.",
+    "appointmentType": "Tipo de Cita",
+    "inPerson": "Presencial",
+    "call": "Llamada",
+    "videoCall": "Videollamada",
+    "preferredDate": "Fecha y Hora Preferida",
+    "notes": "Notas (opcional)",
+    "notesPlaceholder": "Describe el motivo de tu cita...",
+    "submitRequest": "Enviar Solicitud",
+    "dateRequired": "Por favor selecciona una fecha.",
+    "requestSuccess": "¡Solicitud de cita enviada exitosamente!",
+    "scheduled": "Programada",
+    "completed": "Completada",
+    "cancelled": "Cancelada",
+    "markAllRead": "Marcar todo como leído",
+    "noNotifications": "No tienes notificaciones."
   }
 }

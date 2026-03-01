@@ -75,10 +75,12 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
           </div>
           
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="rounded-xl border-border hover:bg-muted font-bold h-12">
-              <CalendarIcon className="w-4 h-4 mr-2" />
-              {t("scheduleVisit")}
-            </Button>
+            <Link href="/my-doctor">
+              <Button variant="outline" className="rounded-xl border-border hover:bg-muted font-bold h-12">
+                <CalendarIcon className="w-4 h-4 mr-2" />
+                {t("scheduleVisit")}
+              </Button>
+            </Link>
             <Link href="/vitals">
               <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg h-12 px-6 font-bold transition-all active:scale-95">
                 <Plus className="w-5 h-5 mr-2" />

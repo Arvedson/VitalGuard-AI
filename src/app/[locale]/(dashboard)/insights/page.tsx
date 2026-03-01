@@ -24,9 +24,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { generateAIInsight, getPatientInsights } from "@/app/actions/insights";
+import { useRouter } from "next/navigation";
 
 export default function HealthInsightsPage() {
   const t = useTranslations("HealthInsights");
+  const router = useRouter();
   const [insights, setInsights] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -179,7 +181,12 @@ export default function HealthInsightsPage() {
                           <p className="font-bold text-destructive text-sm">{t("consultationRecommended")}</p>
                           <p className="text-xs text-muted-foreground">{t("consultationDesc")}</p>
                         </div>
-                        <Button variant="outline" size="sm" className="ml-auto text-destructive border-destructive/30 hover:bg-destructive/10 font-bold rounded-xl flex-shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="ml-auto text-destructive border-destructive/30 hover:bg-destructive/10 font-bold rounded-xl flex-shrink-0"
+                          onClick={() => router.push("/my-doctor")}
+                        >
                           <Stethoscope className="w-4 h-4 mr-1" /> {t("contactDoctor")}
                         </Button>
                       </div>

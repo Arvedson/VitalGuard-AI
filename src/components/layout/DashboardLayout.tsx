@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSession, signOut } from "next-auth/react";
+import { formatDistanceToNow } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 
 interface SidebarItemProps {
   href: string;
@@ -52,15 +54,54 @@ const SidebarItem = ({ href, icon: Icon, label, active }: SidebarItemProps) => (
 );
 
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { 
+  getUnreadNotificationCount, 
+  getMyNotifications, 
+  markNotificationRead,
+  markAllNotificationsRead 
+} from "@/app/actions/patient";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations("Navigation");
+  const locale = useLocale();
 
   const userRole = (session?.user as any)?.role;
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [countRes, notifsRes] = await Promise.all([
+          getUnreadNotificationCount(),
+          getMyNotifications()
+        ]);
+        if (countRes?.count !== undefined) setUnreadCount(countRes.count);
+        if (notifsRes?.notifications) setNotifications(notifsRes.notifications);
+      } catch (e) {
+        // Ignore errors (e.g. if not logged in)
+      }
+    }
+    fetchData();
+  }, [pathname]);
+
+  const handleMarkRead = async (id: string) => {
+    await markNotificationRead(id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  };
+
+  const handleMarkAllRead = async () => {
+    await markAllNotificationsRead();
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    setUnreadCount(0);
+  };
 
   const navigation = [
     { name: t("dashboard"), href: "/", icon: LayoutDashboard },
@@ -68,7 +109,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       { name: t("vitals"), href: "/vitals", icon: Activity },
       { name: t("intake"), href: "/intake", icon: History },
       { name: "Health Insights", href: "/insights", icon: Brain },
-      { name: "Link Doctor", href: "/link-doctor", icon: Stethoscope },
+      { name: t("myDoctor"), href: "/my-doctor", icon: Stethoscope },
     ] : []),
     { name: t("profile"), href: "/profile", icon: User },
     { name: t("settings"), href: "/settings", icon: Settings },
@@ -164,10 +205,80 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             
             <LanguageSwitcher />
 
-            <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-primary">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full border-2 border-background" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-primary">
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-destructive text-white text-[10px] font-black rounded-full flex items-center justify-center px-1">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80 glass p-0 border-border/50 overflow-hidden">
+                <div className="flex items-center justify-between p-3 border-b border-border/50 bg-muted/30">
+                  <span className="font-bold text-sm">{t("notifications")}</span>
+                  {unreadCount > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleMarkAllRead}
+                      className="h-auto p-0 text-xs text-primary hover:text-primary hover:bg-transparent font-medium"
+                    >
+                      Marcar leídas
+                    </Button>
+                  )}
+                </div>
+                <div className="max-h-[300px] overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      No tienes notificaciones
+                    </div>
+                  ) : (
+                    notifications.slice(0, 5).map((notif) => (
+                      <div 
+                        key={notif.id}
+                        className={cn(
+                          "p-3 text-sm border-b border-border/30 last:border-0 cursor-pointer transition-colors hover:bg-muted/50",
+                          !notif.isRead && "bg-primary/[0.03] border-l-2 border-l-primary"
+                        )}
+                        onClick={() => {
+                          if (!notif.isRead) handleMarkRead(notif.id);
+                          if (userRole === "PATIENT") router.push("/my-doctor");
+                        }}
+                      >
+                        <div className="flex justify-between items-start gap-2 mb-1">
+                          <span className={cn("font-semibold line-clamp-1", !notif.isRead && "text-primary")}>
+                            {notif.title}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                            {formatDistanceToNow(new Date(notif.createdAt), { 
+                              addSuffix: true,
+                              locale: locale === "es" ? es : enUS
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {notif.message}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+                {userRole === "PATIENT" && notifications.length > 5 && (
+                  <div className="p-2 border-t border-border/50 bg-muted/30">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full h-8 text-xs font-semibold"
+                      onClick={() => router.push("/my-doctor")}
+                    >
+                      Ver todas
+                    </Button>
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -20,35 +20,37 @@ async function getDoctorId() {
 export async function getDoctorDashboardData() {
   const doctorId = await getDoctorId();
 
-  const doctor = await (prisma as any).doctor.findUnique({
-    where: { id: doctorId },
-    include: {
-      patients: {
-        include: {
-          vitals: { orderBy: { timestamp: "desc" }, take: 1 },
-          healthScores: { orderBy: { timestamp: "desc" }, take: 1 },
-          aiDiagnoses: { orderBy: { timestamp: "desc" }, take: 1 },
-          reviews: { orderBy: { createdAt: "desc" }, take: 1 },
-          appointments: {
-            where: { status: "SCHEDULED" },
-            orderBy: { scheduledAt: "asc" },
-            take: 1,
+  const [doctor, upcoming, past] = await Promise.all([
+    (prisma as any).doctor.findUnique({
+      where: { id: doctorId },
+      include: {
+        patients: {
+          include: {
+            vitals: { orderBy: { timestamp: "desc" }, take: 1 },
+            healthScores: { orderBy: { timestamp: "desc" }, take: 1 },
+            aiDiagnoses: { orderBy: { timestamp: "desc" }, take: 1 },
+            reviews: { orderBy: { createdAt: "desc" }, take: 1 },
+            appointments: {
+              where: { status: "SCHEDULED" },
+              orderBy: { scheduledAt: "asc" },
+              take: 1,
+            },
           },
         },
       },
-      appointments: {
-        where: {
-          status: "SCHEDULED",
-          scheduledAt: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)),
-            lt: new Date(new Date().setHours(23, 59, 59, 999)),
-          },
-        },
-        include: { patient: { select: { id: true, name: true } } },
-        orderBy: { scheduledAt: "asc" },
-      },
-    },
-  });
+    }),
+    (prisma as any).appointment.findMany({
+      where: { doctorId, status: "SCHEDULED" },
+      include: { patient: { select: { id: true, name: true } } },
+      orderBy: { scheduledAt: "asc" },
+    }),
+    (prisma as any).appointment.findMany({
+      where: { doctorId, status: { in: ["COMPLETED", "CANCELLED"] } },
+      include: { patient: { select: { id: true, name: true } } },
+      orderBy: { scheduledAt: "desc" },
+      take: 30,
+    })
+  ]);
 
   if (!doctor) throw new Error("Doctor not found");
 
@@ -117,7 +119,16 @@ export async function getDoctorDashboardData() {
       const bScore = ((aiWeight as any)[b.aiAlertLevel ?? "LOW"] ?? 2) + ((statusWeight as any)[b.status] ?? 2);
       return aScore - bScore;
     }),
-    todayAppointments: doctor.appointments.map((a: any) => ({
+    upcomingAppointments: upcoming.map((a: any) => ({
+      id: a.id,
+      patientId: a.patient.id,
+      patientName: a.patient.name,
+      type: a.type,
+      scheduledAt: a.scheduledAt,
+      notes: a.notes,
+      status: a.status,
+    })),
+    pastAppointments: past.map((a: any) => ({
       id: a.id,
       patientId: a.patient.id,
       patientName: a.patient.name,
@@ -192,8 +203,11 @@ export async function scheduleAppointment(
 
   const patient = await prisma.patient.findFirst({
     where: { id: patientId, doctorId },
+    include: { user: true },
   });
   if (!patient) return { error: "Patient not found or not assigned to you." };
+
+  const doctor = await prisma.doctor.findUnique({ where: { id: doctorId } });
 
   try {
     const appointment = await (prisma as any).appointment.create({
@@ -205,6 +219,21 @@ export async function scheduleAppointment(
         notes: notes || null,
       },
     });
+
+    // Notify the patient
+    if (patient.user) {
+      const typeLabel = type === "IN_PERSON" ? "presencial" : type === "CALL" ? "llamada" : "videollamada";
+      await (prisma as any).notification.create({
+        data: {
+          userId: patient.user.id,
+          type: "APPOINTMENT_SCHEDULED",
+          title: "Cita Agendada",
+          message: `Dr. ${doctor?.name || "Doctor"} ha agendado una cita ${typeLabel} para el ${new Date(scheduledAt).toLocaleDateString()}.`,
+          relatedId: appointment.id,
+        },
+      });
+    }
+
     return { success: true, appointment };
   } catch (error) {
     return { error: "Failed to schedule appointment." };
@@ -219,13 +248,36 @@ export async function updateAppointmentStatus(appointmentId: string, status: str
   try {
     const appointment = await (prisma as any).appointment.findFirst({
       where: { id: appointmentId, doctorId },
+      include: { patient: { include: { user: true } } },
     });
     if (!appointment) return { error: "Appointment not found." };
+
+    const doctor = await prisma.doctor.findUnique({ where: { id: doctorId } });
 
     await (prisma as any).appointment.update({
       where: { id: appointmentId },
       data: { status },
     });
+
+    // Notify the patient about the status change
+    if (appointment.patient?.user) {
+      const notifType = status === "COMPLETED" ? "APPOINTMENT_COMPLETED" : "APPOINTMENT_CANCELLED";
+      const title = status === "COMPLETED" ? "Cita Completada" : "Cita Cancelada";
+      const message = status === "COMPLETED"
+        ? `Dr. ${doctor?.name || "Doctor"} ha marcado tu cita como completada.`
+        : `Dr. ${doctor?.name || "Doctor"} ha cancelado tu cita.`;
+
+      await (prisma as any).notification.create({
+        data: {
+          userId: appointment.patient.user.id,
+          type: notifType,
+          title,
+          message,
+          relatedId: appointmentId,
+        },
+      });
+    }
+
     return { success: true };
   } catch (error) {
     return { error: "Failed to update appointment." };

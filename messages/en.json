@@ -86,7 +86,8 @@
     "healthReport": "Health Report",
     "systemLive": "System Live",
     "searchPlaceholder": "Search history, vitals...",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "myDoctor": "My Doctor"
   },
   "Auth": {
     "login": "Sign In",
@@ -319,6 +320,11 @@
     "save": "Save",
     "cancel": "Cancel",
     "todayAgenda": "Today's Agenda",
+    "agenda": "Agenda",
+    "upcoming": "Upcoming",
+    "history": "History",
+    "noUpcomingAppointments": "You have no upcoming appointments.",
+    "noHistoryAppointments": "You haven't completed or canceled any appointments.",
     "noAppointments": "No appointments scheduled for today.",
     "inPerson": "In Person",
     "call": "Call",
@@ -378,5 +384,36 @@
     "habits": "Habits",
     "environment": "Environment",
     "notProvided": "Not provided"
+  },
+  "MyDoctor": {
+    "title": "My",
+    "subtitle": "Doctor",
+    "description": "Manage your appointments and stay connected with your doctor.",
+    "noDoctor": "No Doctor Assigned",
+    "noDoctorDesc": "You need to link your profile with a doctor to access this section.",
+    "linkDoctor": "Link Doctor",
+    "generalPractice": "General Practice",
+    "linked": "LINKED",
+    "myAppointments": "My Appointments",
+    "requestAppointment": "Request Appointment",
+    "notifications": "Notifications",
+    "noAppointments": "You have no appointments.",
+    "requestFirst": "Request Your First Appointment",
+    "requestDesc": "Select the appointment type and your preferred date. Your doctor will be notified.",
+    "appointmentType": "Appointment Type",
+    "inPerson": "In Person",
+    "call": "Call",
+    "videoCall": "Video Call",
+    "preferredDate": "Preferred Date & Time",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "Describe the reason for your appointment...",
+    "submitRequest": "Submit Request",
+    "dateRequired": "Please select a date.",
+    "requestSuccess": "Appointment request submitted successfully!",
+    "scheduled": "Scheduled",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "You have no notifications."
   }
 }

@@ -23,6 +23,7 @@ import {
   CalendarClock,
   CheckCheck,
   XCircle,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -71,10 +72,12 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
   // ── Local state that mirrors server data ──
   const [metrics, setMetrics] = useState<Metrics>(initialData?.metrics || { totalPatients: 0, criticalPatients: 0, pendingReviews: 0, aiHighAlerts: 0 });
   const [patients, setPatients] = useState<any[]>(initialData?.patients || []);
-  const [todayAppointments, setTodayAppointments] = useState<any[]>(initialData?.todayAppointments || []);
+  const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>(initialData?.upcomingAppointments || []);
+  const [pastAppointments, setPastAppointments] = useState<any[]>(initialData?.pastAppointments || []);
 
   // ── UI state ──
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
+  const [agendaTab, setAgendaTab] = useState<"upcoming" | "history">("upcoming");
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [schedulePatient, setSchedulePatient] = useState<any>(null);
   const [scheduleType, setScheduleType] = useState("IN_PERSON");
@@ -135,23 +138,20 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
         toast.error(result.error);
       } else {
         toast.success(t("appointmentScheduled"));
-        // Add to today's appointments if it's today
-        const apptDate = new Date(scheduleDate);
-        const today = new Date();
-        if (apptDate.toDateString() === today.toDateString()) {
-          setTodayAppointments(prev => [
-            ...prev,
-            {
-              id: result.appointment?.id || Date.now().toString(),
-              patientId: schedulePatient.id,
-              patientName: schedulePatient.name,
-              type: scheduleType,
-              scheduledAt: scheduleDate,
-              notes: scheduleNotes,
-              status: "SCHEDULED",
-            },
-          ].sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()));
-        }
+        // Add to upcoming appointments
+        setUpcomingAppointments(prev => [
+          ...prev,
+          {
+            id: result.appointment?.id || Date.now().toString(),
+            patientId: schedulePatient.id,
+            patientName: schedulePatient.name,
+            type: scheduleType,
+            scheduledAt: scheduleDate,
+            notes: scheduleNotes,
+            status: "SCHEDULED",
+          },
+        ].sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()));
+        
         // Update patient's nextAppointment
         setPatients(prev =>
           prev.map(p =>
@@ -179,9 +179,15 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
       if (result?.error) {
         toast.error(result.error);
       } else {
-        setTodayAppointments(prev =>
-          prev.map(a => (a.id === appointmentId ? { ...a, status: "COMPLETED" } : a))
-        );
+        // Remove from upcoming and add to past
+        const appt = upcomingAppointments.find(a => a.id === appointmentId);
+        if (appt) {
+          setUpcomingAppointments(prev => prev.filter(a => a.id !== appointmentId));
+          setPastAppointments(prev => [
+            { ...appt, status: "COMPLETED" },
+            ...prev,
+          ].sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()));
+        }
         toast.success(t("completed"));
       }
     });
@@ -193,9 +199,15 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
       if (result?.error) {
         toast.error(result.error);
       } else {
-        setTodayAppointments(prev =>
-          prev.map(a => (a.id === appointmentId ? { ...a, status: "CANCELLED" } : a))
-        );
+        // Remove from upcoming and add to past
+        const appt = upcomingAppointments.find(a => a.id === appointmentId);
+        if (appt) {
+          setUpcomingAppointments(prev => prev.filter(a => a.id !== appointmentId));
+          setPastAppointments(prev => [
+            { ...appt, status: "CANCELLED" },
+            ...prev,
+          ].sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()));
+        }
         toast.success(t("cancelled"));
       }
     });
@@ -373,95 +385,185 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
         </motion.div>
       </div>
 
-      {/* Today's Agenda */}
+      {/* Agenda */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
         <Card className="glass border-none shadow-xl overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-primary/5 to-blue-500/5 border-b border-border/50">
-            <CardTitle className="text-lg font-bold flex items-center gap-2">
-              <CalendarClock className="w-5 h-5 text-primary" /> {t("todayAgenda")}
-            </CardTitle>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <CalendarClock className="w-5 h-5 text-primary" /> {t("agenda")}
+              </CardTitle>
+              <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-xl w-fit">
+                <Button
+                  size="sm"
+                  variant={agendaTab === "upcoming" ? "default" : "ghost"}
+                  className={cn(
+                    "h-8 px-3 text-xs font-bold rounded-lg transition-all",
+                    agendaTab === "upcoming"
+                      ? "bg-primary text-white shadow-md"
+                      : "text-muted-foreground hover:text-secondary"
+                  )}
+                  onClick={() => setAgendaTab("upcoming")}
+                >
+                  {t("upcoming")}
+                  {upcomingAppointments.length > 0 && (
+                    <span className="ml-1.5 bg-white/20 text-white px-1.5 py-0.5 rounded-full text-[10px]">
+                      {upcomingAppointments.length}
+                    </span>
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={agendaTab === "history" ? "default" : "ghost"}
+                  className={cn(
+                    "h-8 px-3 text-xs font-bold rounded-lg transition-all",
+                    agendaTab === "history"
+                      ? "bg-primary text-white shadow-md"
+                      : "text-muted-foreground hover:text-secondary"
+                  )}
+                  onClick={() => setAgendaTab("history")}
+                >
+                  {t("history")}
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="p-4">
-            {todayAppointments.length > 0 ? (
-              <div className="space-y-3">
-                {todayAppointments.map((appt: any) => (
-                  <div
-                    key={appt.id}
-                    className={cn(
-                      "flex items-center justify-between p-4 rounded-xl border transition-all",
-                      appt.status === "COMPLETED"
-                        ? "bg-success/5 border-success/20 opacity-60"
-                        : appt.status === "CANCELLED"
-                        ? "bg-muted/20 border-border/30 opacity-40 line-through"
-                        : "bg-primary/5 border-primary/10 hover:border-primary/30"
-                    )}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "p-2.5 rounded-xl",
-                        appt.status === "COMPLETED" ? "bg-success/10 text-success" :
-                        appt.status === "CANCELLED" ? "bg-muted/20 text-muted-foreground" :
-                        "bg-primary/10 text-primary"
-                      )}>
-                        {getAppointmentIcon(appt.type)}
-                      </div>
-                      <div>
-                        <p className="font-bold text-secondary dark:text-white text-sm">
-                          {getAppointmentLabel(appt.type)} {t("appointmentWith")} {appt.patientName}
-                        </p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <Clock className="w-3 h-3" />
-                          {mounted ? format.dateTime(new Date(appt.scheduledAt), {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }) : "..."}
-                          {appt.notes && <span className="ml-2 italic">— {appt.notes}</span>}
-                        </p>
-                      </div>
+            <AnimatePresence mode="wait">
+              {agendaTab === "upcoming" && (
+                <motion.div
+                  key="upcoming"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                >
+                  {upcomingAppointments.length > 0 ? (
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                      {upcomingAppointments.map((appt: any) => (
+                        <div
+                          key={appt.id}
+                          className="flex items-center justify-between p-4 rounded-xl border transition-all bg-primary/5 border-primary/10 hover:border-primary/30"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
+                              {getAppointmentIcon(appt.type)}
+                            </div>
+                            <div>
+                              <p className="font-bold text-secondary dark:text-white text-sm">
+                                {getAppointmentLabel(appt.type)} {t("appointmentWith")} {appt.patientName}
+                              </p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5" suppressHydrationWarning>
+                                <Clock className="w-3 h-3" />
+                                {mounted ? format.dateTime(new Date(appt.scheduledAt), {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }) : "..."}
+                                {appt.notes && <span className="ml-2 italic">— {appt.notes}</span>}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-success hover:bg-success/10 h-8 px-3 font-bold text-xs"
+                              onClick={() => handleCompleteAppointment(appt.id)}
+                              disabled={isPending}
+                            >
+                              <CheckCheck className="w-3.5 h-3.5 mr-1" />
+                              {t("completeAppointment")}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:bg-destructive/10 h-8 px-3 font-bold text-xs"
+                              onClick={() => handleCancelAppointment(appt.id)}
+                              disabled={isPending}
+                            >
+                              <XCircle className="w-3.5 h-3.5 mr-1" />
+                              {t("cancelAppointment")}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    {appt.status === "SCHEDULED" && (
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-success hover:bg-success/10 h-8 px-3 font-bold text-xs"
-                          onClick={() => handleCompleteAppointment(appt.id)}
-                          disabled={isPending}
+                  ) : (
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
+                      <Calendar className="w-5 h-5 mr-2 opacity-40" />
+                      <span className="text-sm font-medium">{t("noUpcomingAppointments")}</span>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {agendaTab === "history" && (
+                <motion.div
+                  key="history"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                >
+                  {pastAppointments.length > 0 ? (
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                      {pastAppointments.map((appt: any) => (
+                        <div
+                          key={appt.id}
+                          className={cn(
+                            "flex items-center justify-between p-4 rounded-xl border transition-all",
+                            appt.status === "COMPLETED"
+                              ? "bg-success/5 border-success/20"
+                              : "bg-muted/10 border-border/30 opacity-70"
+                          )}
                         >
-                          <CheckCheck className="w-3.5 h-3.5 mr-1" />
-                          {t("completeAppointment")}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive hover:bg-destructive/10 h-8 px-3 font-bold text-xs"
-                          onClick={() => handleCancelAppointment(appt.id)}
-                          disabled={isPending}
-                        >
-                          <XCircle className="w-3.5 h-3.5 mr-1" />
-                          {t("cancelAppointment")}
-                        </Button>
-                      </div>
-                    )}
-                    {appt.status === "COMPLETED" && (
-                      <Badge variant="outline" className="border-success/30 text-success bg-success/5 font-bold text-xs">
-                        {t("completed")}
-                      </Badge>
-                    )}
-                    {appt.status === "CANCELLED" && (
-                      <Badge variant="outline" className="border-destructive/30 text-destructive bg-destructive/5 font-bold text-xs">
-                        {t("cancelled")}
-                      </Badge>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center py-8 text-muted-foreground">
-                <Calendar className="w-5 h-5 mr-2 opacity-40" />
-                <span className="text-sm font-medium">{t("noAppointments")}</span>
-              </div>
-            )}
+                          <div className="flex items-center gap-4">
+                            <div className={cn(
+                              "p-2.5 rounded-xl",
+                              appt.status === "COMPLETED" ? "bg-success/10 text-success" : "bg-muted/20 text-muted-foreground"
+                            )}>
+                              {getAppointmentIcon(appt.type)}
+                            </div>
+                            <div>
+                              <p className={cn("font-bold text-sm", appt.status === "CANCELLED" ? "text-muted-foreground line-through" : "text-secondary dark:text-white")}>
+                                {getAppointmentLabel(appt.type)} {t("appointmentWith")} {appt.patientName}
+                              </p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5" suppressHydrationWarning>
+                                <Clock className="w-3 h-3" />
+                                {mounted ? format.dateTime(new Date(appt.scheduledAt), {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }) : "..."}
+                                {appt.notes && <span className="ml-2 italic">— {appt.notes}</span>}
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            {appt.status === "COMPLETED" ? (
+                              <Badge variant="outline" className="border-success/30 text-success bg-success/5 font-bold text-xs">
+                                {t("completed")}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="border-destructive/30 text-destructive bg-destructive/5 font-bold text-xs">
+                                {t("cancelled")}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
+                      <History className="w-5 h-5 mr-2 opacity-40" />
+                      <span className="text-sm font-medium">{t("noHistoryAppointments")}</span>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </CardContent>
         </Card>
       </motion.div>
