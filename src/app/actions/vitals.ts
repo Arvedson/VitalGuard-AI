@@ -63,3 +63,22 @@ export async function saveVitals(data: any) {
     return { error: "Failed to save vitals data." };
   }
 }
+
+export async function getPatientVitalsHistory() {
+  const session = await auth();
+  if (!session?.user) return { error: "Not authenticated" };
+
+  const patientId = (session.user as any).patientId;
+  if (!patientId) return { error: "No patient profile found" };
+
+  try {
+    const vitals = await prisma.vitalSign.findMany({
+      where: { patientId },
+      orderBy: { timestamp: "desc" },
+    });
+    return { data: vitals };
+  } catch (error) {
+    console.error("Error fetching vitals history:", error);
+    return { error: "Failed to fetch vitals history." };
+  }
+}

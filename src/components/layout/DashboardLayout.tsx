@@ -111,7 +111,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       { name: "Health Insights", href: "/insights", icon: Brain },
       { name: t("myDoctor"), href: "/my-doctor", icon: Stethoscope },
     ] : []),
-    { name: t("profile"), href: "/profile", icon: User },
+    { name: userRole === "DOCTOR" ? t("doctorPanel") : t("profile"), href: "/profile", icon: User },
     { name: t("settings"), href: "/settings", icon: Settings },
   ];
 

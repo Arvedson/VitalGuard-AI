@@ -1,4 +1,6 @@
 import { AddVitalsForm } from "@/components/vitals/AddVitalsForm";
+import { UploadHistoryModal } from "@/components/vitals/UploadHistoryModal";
+import { VitalsHistoryModal } from "@/components/vitals/VitalsHistoryModal";
 import { ECGVisualization } from "@/components/vitals/ECGVisualization";
 import { Activity, History, Heart } from "lucide-react";
 
@@ -42,11 +44,14 @@ export default async function VitalsPage() {
           </p>
         </div>
         
-        <div className="flex gap-2">
-          <div className="px-4 py-2 bg-muted/50 rounded-xl border border-border flex items-center gap-2">
-            <History className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-semibold">{t("viewHistory")}</span>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <UploadHistoryModal />
+          <VitalsHistoryModal>
+            <button className="px-4 py-2 bg-muted/50 hover:bg-muted/80 transition-colors rounded-xl border border-border flex items-center gap-2">
+              <History className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-semibold">{t("viewHistory")}</span>
+            </button>
+          </VitalsHistoryModal>
           <div className="px-4 py-2 bg-primary/10 rounded-xl border border-primary/20 flex items-center gap-2">
             <Heart className="w-4 h-4 text-primary" />
             <span className="text-sm font-semibold text-primary italic">
