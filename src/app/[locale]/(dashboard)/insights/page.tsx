@@ -150,12 +150,12 @@ export default function HealthInsightsPage() {
                 <Card className="glass border-none shadow-2xl overflow-hidden">
                   {/* Insight Header */}
                   <CardHeader className="bg-primary/5 border-b border-border/50">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <CardTitle className="text-lg font-bold flex items-center gap-2">
                         <Brain className="w-5 h-5 text-primary" />
                         {t("wellnessAnalysis")}
                       </CardTitle>
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
                         {getAlertBadge(insight.alertLevel)}
                         <span className="text-xs text-muted-foreground font-medium flex items-center gap-1" suppressHydrationWarning>
                           <Clock className="w-3 h-3" />
@@ -175,16 +175,18 @@ export default function HealthInsightsPage() {
 
                     {/* Alert Banner */}
                     {insight.alertLevel === "HIGH" && (
-                      <div className="flex items-center gap-3 p-4 bg-destructive/5 border border-destructive/20 rounded-xl">
-                        <ShieldAlert className="w-6 h-6 text-destructive flex-shrink-0" />
-                        <div>
-                          <p className="font-bold text-destructive text-sm">{t("consultationRecommended")}</p>
-                          <p className="text-xs text-muted-foreground">{t("consultationDesc")}</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-destructive/5 border border-destructive/20 rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <ShieldAlert className="w-6 h-6 text-destructive flex-shrink-0" />
+                          <div>
+                            <p className="font-bold text-destructive text-sm">{t("consultationRecommended")}</p>
+                            <p className="text-xs text-muted-foreground">{t("consultationDesc")}</p>
+                          </div>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="ml-auto text-destructive border-destructive/30 hover:bg-destructive/10 font-bold rounded-xl flex-shrink-0"
+                          className="w-full sm:w-auto sm:ml-auto text-destructive border-destructive/30 hover:bg-destructive/10 font-bold rounded-xl flex-shrink-0"
                           onClick={() => router.push("/my-doctor")}
                         >
                           <Stethoscope className="w-4 h-4 mr-1" /> {t("contactDoctor")}

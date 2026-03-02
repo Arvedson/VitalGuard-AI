@@ -29,7 +29,7 @@ export function LanguageSwitcher() {
           <span className="sr-only">Toggle language</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="glass border-border shadow-xl rounded-2xl p-2 min-w-[120px]">
+      <DropdownMenuContent align="end" className="bg-white dark:bg-slate-950 opacity-100 border-border shadow-2xl rounded-2xl p-2 min-w-[140px] animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2">
         <DropdownMenuItem 
           onClick={() => handleLanguageChange("es")}
           className={`rounded-xl cursor-pointer font-bold ${locale === "es" ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}

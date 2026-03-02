@@ -104,10 +104,40 @@ body {
   color: var(--foreground);
 }
 
-/* Glass morphism utility */
+/* Glass morphism utility - updated to be more solid but still glass-like for non-critical cards */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+/* Hard fix for Radix Popper transparency - Enforce solid background */
+[data-radix-popper-content-wrapper] {
+  z-index: 50 !important;
+  opacity: 1 !important;
+  background: transparent !important; /* The wrapper itself should be transparent, but its children should be solid */
+}
+
+/* Ensure ALL menu and select content is 100% OPAQUE */
+[data-slot="dropdown-menu-content"],
+[data-slot="select-content"],
+[data-slot="popover-content"],
+[data-radix-popper-content-wrapper] > div {
+  background-color: #ffffff !important; /* Force solid white */
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark mode support if applicable */
+.dark [data-slot="dropdown-menu-content"],
+.dark [data-slot="select-content"],
+.dark [data-slot="popover-content"],
+.dark [data-radix-popper-content-wrapper] > div {
+  background-color: #0f172a !important; /* Solid dark blue/black */
 }
