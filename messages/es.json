@@ -296,6 +296,7 @@
     "aiHighAlerts": "Alertas Altas IA",
     "aiFlaggedHigh": "IA detectó riesgo ALTO",
     "pendingReviews": "Revisiones Pendientes",
+    "manualReview": "Revisión manual requerida",
     "newIntakeForms": "Esperando tu revisión",
     "myPatients": "Mis Pacientes",
     "overviewPatients": "Resumen de todos los pacientes asignados a tu práctica.",

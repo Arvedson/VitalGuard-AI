@@ -87,35 +87,37 @@ export default function PatientDetailUI({ patient, insights = [] }: { patient: a
   return (
     <div className="space-y-8">
       {/* Back Button + Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/">
-          <Button variant="ghost" size="icon" className="rounded-xl">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div className="flex items-center gap-4 flex-1">
-          <Avatar className="w-14 h-14 border-2 border-primary/20">
-            <AvatarFallback className="bg-primary/10 text-primary font-black text-xl">
-              {patient.name?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-secondary dark:text-white">
-              {patient.name}
-            </h1>
-            <div className="flex items-center gap-3 mt-1">
-              <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-semibold text-secondary dark:text-white">
-                {patient.segment.replace("_", " ")}
-              </span>
-              <span className="text-sm text-muted-foreground">{patient.gender}</span>
-              <span className="text-sm text-muted-foreground" suppressHydrationWarning>
-                DOB: {new Date(patient.birthDate).toLocaleDateString()}
-              </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <Button variant="ghost" size="icon" className="rounded-xl flex-shrink-0">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <Avatar className="w-14 h-14 border-2 border-primary/20 flex-shrink-0">
+              <AvatarFallback className="bg-primary/10 text-primary font-black text-xl">
+                {patient.name?.[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-secondary dark:text-white truncate">
+                {patient.name}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold text-secondary dark:text-white whitespace-nowrap">
+                  {patient.segment.replace("_", " ")}
+                </span>
+                <span className="text-xs sm:text-sm text-muted-foreground">{patient.gender}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap" suppressHydrationWarning>
+                  {new Date(patient.birthDate).toLocaleDateString()}
+                </span>
+              </div>
             </div>
           </div>
         </div>
         {latestScore && (
-          <div className={cn("inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-black tracking-widest border", getStatusColor(latestScore.status))}>
+          <div className={cn("inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-black tracking-widest border w-full sm:w-auto", getStatusColor(latestScore.status))}>
             {getStatusIcon(latestScore.status)}
             {t("score")}: {latestScore.score.toFixed(0)}
           </div>

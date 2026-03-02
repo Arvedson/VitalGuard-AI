@@ -66,23 +66,23 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
         {/* Welcome Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-black tracking-tight text-secondary dark:text-white">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-secondary dark:text-white">
               {titleMain} <span className="text-primary italic">{titleItalic}</span>
             </h1>
-            <p className="text-muted-foreground mt-2 text-lg">
+            <p className="text-muted-foreground mt-2 text-base sm:text-lg">
               {t("welcome", { name: userName })}
             </p>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Link href="/my-doctor">
-              <Button variant="outline" className="rounded-xl border-border hover:bg-muted font-bold h-12">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            <Link href="/my-doctor" className="w-full sm:w-auto">
+              <Button variant="outline" className="rounded-xl border-border hover:bg-muted font-bold h-12 w-full">
                 <CalendarIcon className="w-4 h-4 mr-2" />
                 {t("scheduleVisit")}
               </Button>
             </Link>
-            <Link href="/vitals">
-              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg h-12 px-6 font-bold transition-all active:scale-95">
+            <Link href="/vitals" className="w-full sm:w-auto">
+              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg h-12 px-6 font-bold transition-all active:scale-95 w-full">
                 <Plus className="w-5 h-5 mr-2" />
                 {t("addVitals")}
               </Button>
@@ -125,12 +125,12 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-6 glass rounded-3xl border-none shadow-lg hover:shadow-2xl transition-all duration-300 group"
+                  className="p-4 sm:p-6 glass rounded-3xl border-none shadow-lg hover:shadow-2xl transition-all duration-300 group"
                 >
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">{stat.label}</span>
+                  <div className="flex justify-between items-start gap-2 mb-4">
+                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground flex-1 min-w-0 break-words leading-tight">{stat.label}</span>
                     <div className={cn(
-                      "p-1.5 rounded-lg",
+                      "p-1.5 rounded-lg shrink-0",
                       stat.trend === "up" ? "bg-danger/10 text-danger" : 
                       stat.trend === "down" ? "bg-success/10 text-success" : 
                       "bg-blue-500/10 text-blue-500"
@@ -140,11 +140,11 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
                        <Activity className="w-3 h-3" />}
                     </div>
                   </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-secondary dark:text-white group-hover:text-primary transition-colors">
+                  <div className="flex items-baseline gap-1 sm:gap-2 overflow-hidden">
+                    <span className="text-2xl sm:text-3xl font-black text-secondary dark:text-white group-hover:text-primary transition-colors truncate">
                       {stat.value}
                     </span>
-                    <span className="text-xs font-bold text-muted-foreground">{stat.unit}</span>
+                    <span className="text-[10px] sm:text-xs font-bold text-muted-foreground shrink-0">{stat.unit}</span>
                   </div>
                 </motion.div>
               ))}

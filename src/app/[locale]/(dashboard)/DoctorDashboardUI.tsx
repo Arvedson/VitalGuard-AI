@@ -263,18 +263,18 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-secondary dark:text-white">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-secondary dark:text-white">
             {t("title").split(" ")[0]} <span className="text-primary italic">{t("title").split(" ").slice(1).join(" ")}</span>
           </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
+          <p className="text-muted-foreground mt-2 text-base sm:text-lg">
             {t("welcome", { name: userName })}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg h-12 px-6 font-bold transition-all active:scale-95">
+              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg h-12 px-6 font-bold transition-all active:scale-95 w-full md:w-auto">
                 <Plus className="w-5 h-5 mr-2" />
                 {t("invitePatient")}
               </Button>
@@ -318,15 +318,17 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <Card className="glass border-none shadow-lg hover:shadow-xl transition-all h-full group">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">{t("totalPatients")}</CardTitle>
-              <div className="p-2 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+            <CardHeader className="flex flex-row items-start justify-between p-4 sm:p-6 pb-2 gap-2">
+              <CardTitle className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground flex-1 min-w-0 break-words">
+                {t("totalPatients")}
+              </CardTitle>
+              <div className="p-2 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform shrink-0">
                 <Users className="w-4 h-4" />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-secondary dark:text-white">{metrics.totalPatients}</div>
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1 font-medium">
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className="text-3xl sm:text-4xl font-black text-secondary dark:text-white truncate">{metrics.totalPatients}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 flex items-center gap-1 font-medium">
                 <TrendingUp className="w-3 h-3 text-success" /> {t("activeRoster")}
               </p>
             </CardContent>
@@ -335,15 +337,17 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card className="glass border-none shadow-lg hover:shadow-xl transition-all h-full group cursor-pointer" onClick={() => setActiveFilter(activeFilter === "critical" ? "all" : "critical")}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">{t("criticalVitals")}</CardTitle>
-              <div className="p-2 rounded-xl bg-destructive/10 text-destructive group-hover:scale-110 transition-transform">
+            <CardHeader className="flex flex-row items-start justify-between p-4 sm:p-6 pb-2 gap-2">
+              <CardTitle className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground flex-1 min-w-0 break-words">
+                {t("criticalVitals")}
+              </CardTitle>
+              <div className="p-2 rounded-xl bg-destructive/10 text-destructive group-hover:scale-110 transition-transform shrink-0">
                 <AlertTriangle className="w-4 h-4" />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-secondary dark:text-white">{metrics.criticalPatients}</div>
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1 font-medium text-destructive">
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className="text-3xl sm:text-4xl font-black text-secondary dark:text-white truncate">{metrics.criticalPatients}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 flex items-center gap-1 font-medium text-destructive">
                 {t("abnormalVitals")}
               </p>
             </CardContent>
@@ -352,15 +356,17 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <Card className="glass border-none shadow-lg hover:shadow-xl transition-all h-full group">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">{t("aiHighAlerts")}</CardTitle>
-              <div className="p-2 rounded-xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform">
+            <CardHeader className="flex flex-row items-start justify-between p-4 sm:p-6 pb-2 gap-2">
+              <CardTitle className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground flex-1 min-w-0 break-words">
+                {t("aiHighAlerts")}
+              </CardTitle>
+              <div className="p-2 rounded-xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform shrink-0">
                 <Brain className="w-4 h-4" />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-secondary dark:text-white">{metrics.aiHighAlerts ?? 0}</div>
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1 font-medium text-orange-500">
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className="text-3xl sm:text-4xl font-black text-secondary dark:text-white truncate">{metrics.aiHighAlerts ?? 0}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 flex items-center gap-1 font-medium text-orange-500">
                 {t("aiFlaggedHigh")}
               </p>
             </CardContent>
@@ -369,16 +375,18 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <Card className="glass border-none shadow-lg hover:shadow-xl transition-all h-full group cursor-pointer" onClick={() => setActiveFilter(activeFilter === "needsReview" ? "all" : "needsReview")}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">{t("pendingReviews")}</CardTitle>
-              <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
+            <CardHeader className="flex flex-row items-start justify-between p-4 sm:p-6 pb-2 gap-2">
+              <CardTitle className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground flex-1 min-w-0 break-words">
+                {t("pendingReviews")}
+              </CardTitle>
+              <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform shrink-0">
                 <ClipboardList className="w-4 h-4" />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-secondary dark:text-white">{metrics.pendingReviews}</div>
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1 font-medium text-blue-500">
-                {t("newIntakeForms")}
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className="text-3xl sm:text-4xl font-black text-secondary dark:text-white truncate">{metrics.pendingReviews}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 flex items-center gap-1 font-medium text-blue-500">
+                {t("manualReview")}
               </p>
             </CardContent>
           </Card>
@@ -442,48 +450,58 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
                       {upcomingAppointments.map((appt: any) => (
                         <div
                           key={appt.id}
-                          className="flex items-center justify-between p-4 rounded-xl border transition-all bg-primary/5 border-primary/10 hover:border-primary/30"
+                          className="flex flex-col sm:flex-row sm:items-start justify-between p-5 rounded-2xl border transition-all bg-primary/5 border-primary/10 hover:border-primary/30 gap-5"
                         >
-                          <div className="flex items-center gap-4">
-                            <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
+                          <div className="flex items-start gap-4 flex-1 min-w-0">
+                            <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0 mt-1">
                               {getAppointmentIcon(appt.type)}
                             </div>
-                            <div>
-                              <p className="font-bold text-secondary dark:text-white text-sm">
-                                {getAppointmentLabel(appt.type)} {t("appointmentWith")} {appt.patientName}
-                              </p>
-                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5" suppressHydrationWarning>
-                                <Clock className="w-3 h-3" />
-                                {mounted ? format.dateTime(new Date(appt.scheduledAt), {
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }) : "..."}
-                                {appt.notes && <span className="ml-2 italic">— {appt.notes}</span>}
-                              </p>
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div>
+                                <p className="font-black text-secondary dark:text-white text-base leading-tight break-words">
+                                  {getAppointmentLabel(appt.type)} {t("appointmentWith")} {appt.patientName}
+                                </p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1.5 font-bold" suppressHydrationWarning>
+                                  <Clock className="w-3.5 h-3.5" />
+                                  {mounted ? format.dateTime(new Date(appt.scheduledAt), {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }) : "..."}
+                                </p>
+                              </div>
+                              
+                              {appt.notes && (
+                                <div className="bg-background/40 p-3 rounded-xl border border-primary/5">
+                                  <p className="text-xs text-muted-foreground leading-relaxed italic break-words">
+                                    "{appt.notes}"
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          
+                          <div className="flex flex-col sm:flex-col items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-primary/10">
                             <Button
                               size="sm"
-                              variant="ghost"
-                              className="text-success hover:bg-success/10 h-8 px-3 font-bold text-xs"
+                              className="bg-success/10 hover:bg-success/20 text-success border-none h-10 px-4 font-bold text-xs w-full transition-colors"
                               onClick={() => handleCompleteAppointment(appt.id)}
                               disabled={isPending}
                             >
-                              <CheckCheck className="w-3.5 h-3.5 mr-1" />
-                              {t("completeAppointment")}
+                              <CheckCheck className="w-4 h-4 mr-2" />
+                              <span className="inline sm:hidden lg:inline">{t("completeAppointment")}</span>
+                              <span className="hidden sm:inline lg:hidden">{t("save")}</span>
                             </Button>
                             <Button
                               size="sm"
-                              variant="ghost"
-                              className="text-destructive hover:bg-destructive/10 h-8 px-3 font-bold text-xs"
+                              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-none h-10 px-4 font-bold text-xs w-full transition-colors"
                               onClick={() => handleCancelAppointment(appt.id)}
                               disabled={isPending}
                             >
-                              <XCircle className="w-3.5 h-3.5 mr-1" />
-                              {t("cancelAppointment")}
+                              <XCircle className="w-4 h-4 mr-2" />
+                              <span className="inline sm:hidden lg:inline">{t("cancelAppointment")}</span>
+                              <span className="hidden sm:inline lg:hidden">{t("cancel")}</span>
                             </Button>
                           </div>
                         </div>
@@ -511,43 +529,53 @@ export default function DoctorDashboardUI({ userName, initialData }: { userName:
                         <div
                           key={appt.id}
                           className={cn(
-                            "flex items-center justify-between p-4 rounded-xl border transition-all",
+                            "flex flex-col sm:flex-row sm:items-start justify-between p-5 rounded-2xl border transition-all gap-5",
                             appt.status === "COMPLETED"
                               ? "bg-success/5 border-success/20"
                               : "bg-muted/10 border-border/30 opacity-70"
                           )}
                         >
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-start gap-4 flex-1 min-w-0">
                             <div className={cn(
-                              "p-2.5 rounded-xl",
+                              "p-3 rounded-xl shrink-0 mt-1",
                               appt.status === "COMPLETED" ? "bg-success/10 text-success" : "bg-muted/20 text-muted-foreground"
                             )}>
                               {getAppointmentIcon(appt.type)}
                             </div>
-                            <div>
-                              <p className={cn("font-bold text-sm", appt.status === "CANCELLED" ? "text-muted-foreground line-through" : "text-secondary dark:text-white")}>
-                                {getAppointmentLabel(appt.type)} {t("appointmentWith")} {appt.patientName}
-                              </p>
-                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5" suppressHydrationWarning>
-                                <Clock className="w-3 h-3" />
-                                {mounted ? format.dateTime(new Date(appt.scheduledAt), {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }) : "..."}
-                                {appt.notes && <span className="ml-2 italic">— {appt.notes}</span>}
-                              </p>
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div>
+                                <p className={cn("font-black text-base leading-tight break-words", appt.status === "CANCELLED" ? "text-muted-foreground/50 line-through" : "text-secondary dark:text-white")}>
+                                  {getAppointmentLabel(appt.type)} {t("appointmentWith")} {appt.patientName}
+                                </p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1.5 font-bold" suppressHydrationWarning>
+                                  <Clock className="w-3.5 h-3.5" />
+                                  {mounted ? format.dateTime(new Date(appt.scheduledAt), {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }) : "..."}
+                                </p>
+                              </div>
+                              
+                              {appt.notes && (
+                                <div className="bg-background/40 p-3 rounded-xl border border-border/5">
+                                  <p className="text-xs text-muted-foreground leading-relaxed italic break-words">
+                                    "{appt.notes}"
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <div>
+                          
+                          <div className="flex sm:justify-end shrink-0">
                             {appt.status === "COMPLETED" ? (
-                              <Badge variant="outline" className="border-success/30 text-success bg-success/5 font-bold text-xs">
+                              <Badge variant="outline" className="border-success/30 text-success bg-success/5 font-black text-xs px-3 py-1 uppercase tracking-widest">
                                 {t("completed")}
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="border-destructive/30 text-destructive bg-destructive/5 font-bold text-xs">
+                              <Badge variant="outline" className="border-destructive/30 text-destructive bg-destructive/5 font-black text-xs px-3 py-1 uppercase tracking-widest">
                                 {t("cancelled")}
                               </Badge>
                             )}

@@ -296,6 +296,7 @@
     "aiHighAlerts": "AI High Alerts",
     "aiFlaggedHigh": "AI flagged HIGH risk",
     "pendingReviews": "Pending Reviews",
+    "manualReview": "Manual review required",
     "newIntakeForms": "Awaiting your review",
     "myPatients": "My Patients",
     "overviewPatients": "Overview of all patients assigned to your practice.",
