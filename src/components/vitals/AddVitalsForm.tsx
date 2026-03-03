@@ -37,6 +37,7 @@ import { useTapTempo } from "@/hooks/use-tap-tempo";
 import { TapTempoButton } from "@/components/ui/tap-tempo-button";
 import { RespiratoryTimerButton } from "@/components/ui/respiratory-timer-button";
 import { Spo2Questionnaire } from "@/components/vitals/Spo2Questionnaire";
+import { GlucoseQuestionnaire } from "@/components/vitals/GlucoseQuestionnaire";
 
 const vitalsSchema = z.object({
   systolicBP: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
@@ -70,6 +71,7 @@ export function AddVitalsForm() {
   const t = useTranslations("Vitals");
   const [patientGender, setPatientGender] = useState<string | null>(null);
   const [isSpo2ModalOpen, setIsSpo2ModalOpen] = useState(false);
+  const [isGlucoseModalOpen, setIsGlucoseModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchGender() {
@@ -115,6 +117,10 @@ export function AddVitalsForm() {
 
   const handleSpo2Apply = (value: number) => {
     form.setValue("spo2", value, { shouldValidate: true, shouldDirty: true });
+  };
+
+  const handleGlucoseApply = (value: number) => {
+    form.setValue("glucose", value, { shouldValidate: true, shouldDirty: true });
   };
 
   const calculateBMI = () => {
@@ -304,6 +310,12 @@ export function AddVitalsForm() {
             onApply={handleSpo2Apply}
           />
 
+          <GlucoseQuestionnaire 
+            isOpen={isGlucoseModalOpen} 
+            onClose={() => setIsGlucoseModalOpen(false)} 
+            onApply={handleGlucoseApply}
+          />
+
           {/* Metabolic & Specialized - Sidebar style on desktop */}
           <div className="lg:col-span-4 space-y-8">
             <Card className="glass shadow-xl border-t-4 border-t-fuchsia-500 animate-fade-in [animation-delay:200ms] overflow-hidden">
@@ -379,6 +391,17 @@ export function AddVitalsForm() {
                       <FormControl>
                         <Input placeholder="90" {...field} className="bg-background/50" />
                       </FormControl>
+                      <Button 
+                        type="button" 
+                        variant="link" 
+                        className="p-0 h-auto text-[10px] text-primary font-bold hover:no-underline mt-2 flex items-center gap-1 w-fit group"
+                        onClick={() => setIsGlucoseModalOpen(true)}
+                      >
+                        <div className="p-1 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                          <Info className="w-3 h-3" />
+                        </div>
+                        <span className="whitespace-nowrap">{t("noDevice")}</span>
+                      </Button>
                       <FormMessage />
                     </FormItem>
                   )}

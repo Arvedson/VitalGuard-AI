@@ -247,7 +247,19 @@
     "extractionSuccess": "Extracción Exitosa",
     "recordsSaved": "registros guardados en tu historial.",
     "reviewRecordsBelow": "Esto es lo que nuestra IA extrajo del documento:",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "glucoseEstimationTitle": "Cuestionario para estimar posible glucosa ALTA",
+    "glucoseEstimationDesc": "Responde estas preguntas con Sí o No para dar una orientación sobre tu nivel de glucosa.",
+    "gq1": "¿Tienes mucha sed aunque hayas tomado agua?",
+    "gq2": "¿Estás orinando más veces de lo normal?",
+    "gq3": "¿Sientes la boca muy seca?",
+    "gq4": "¿Tienes visión borrosa reciente?",
+    "gq5": "¿Te sientes cansado sin razón clara?",
+    "gq6": "¿Has notado pérdida de peso sin intentarlo?",
+    "gq7": "¿Tienes infecciones frecuentes (piel, orina)?",
+    "gq8": "¿Te sientes somnoliento después de comer?",
+    "gq9": "¿Tienes antecedentes familiares de diabetes?",
+    "gq10": "¿Comiste muchos carbohidratos o azúcar en las últimas 2–3 horas?"
   },
   "AIAdvice": {
     "title": "Asesor de Salud",

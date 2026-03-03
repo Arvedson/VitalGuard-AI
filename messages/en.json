@@ -247,7 +247,19 @@
     "extractionSuccess": "Extraction Successful",
     "recordsSaved": "records saved to your history.",
     "reviewRecordsBelow": "Here's what our AI extracted from your document:",
-    "close": "Close"
+    "close": "Close",
+    "glucoseEstimationTitle": "Questionnaire to estimate possible HIGH glucose",
+    "glucoseEstimationDesc": "Answer these Yes/No questions to receive an orientation on your glucose level.",
+    "gq1": "Are you very thirsty even after drinking water?",
+    "gq2": "Are you urinating more often than usual?",
+    "gq3": "Does your mouth feel very dry?",
+    "gq4": "Have you had blurred vision recently?",
+    "gq5": "Do you feel tired for no clear reason?",
+    "gq6": "Have you noticed weight loss without trying?",
+    "gq7": "Do you have frequent infections (skin, urine)?",
+    "gq8": "Do you feel sleepy after eating?",
+    "gq9": "Do you have a family history of diabetes?",
+    "gq10": "Have you eaten many carbohydrates or sugar in the last 2–3 hours?"
   },
   "AIAdvice": {
     "title": "Health Advisor",
