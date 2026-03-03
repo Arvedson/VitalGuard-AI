@@ -36,7 +36,8 @@
     "bp": "BP",
     "heartRate": "Heart Rate",
     "healthTrends": "Health Trends",
-    "healthTrendsDesc": "Daily fluctuations in heart rate and blood pressure."
+    "healthTrendsDesc": "Daily fluctuations in heart rate and blood pressure.",
+    "updated": "Updated"
   },
   "HealthScore": {
     "points": "Points",

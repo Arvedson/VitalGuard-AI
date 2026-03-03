@@ -36,7 +36,8 @@
     "bp": "PA",
     "heartRate": "Frecuencia Cardíaca",
     "healthTrends": "Tendencias de Salud",
-    "healthTrendsDesc": "Fluctuaciones diarias en frecuencia cardíaca y presión arterial."
+    "healthTrendsDesc": "Fluctuaciones diarias en frecuencia cardíaca y presión arterial.",
+    "updated": "Actualizado"
   },
   "HealthScore": {
     "points": "Puntos",

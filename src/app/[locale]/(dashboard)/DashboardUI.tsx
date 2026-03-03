@@ -20,6 +20,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { PatientSegmentView } from "@/components/dashboard/PatientSegmentView";
 import { CompleteProfileForm } from "@/components/dashboard/CompleteProfileForm";
+import { formatRelativeTime } from "@/lib/date-utils";
 
 import { useTranslations } from "next-intl";
 
@@ -40,12 +41,50 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
     }));
   }, [initialData?.latestVitals]);
 
+  const lastVitals = initialData?.lastKnownVitals || {};
+  const latestGlobalTimestamp = initialData?.latestVitals?.[0]?.timestamp;
+
   const stats = [
-    { label: t("heartRate", { fallback: "Heart Rate" }), value: initialData?.latestVitals?.[0]?.heartRate || "N/A", unit: "bpm", trend: "stable", change: "0%" },
-    { label: t("bloodPressure"), value: initialData?.latestVitals?.[0] ? `${initialData.latestVitals[0].systolicBP}/${initialData.latestVitals[0].diastolicBP}` : "N/A", unit: "mmHg", trend: "stable", change: "0%" },
-    { label: t("spo2"), value: initialData?.latestVitals?.[0]?.spo2 || "N/A", unit: "%", trend: "stable", change: "0%" },
-    { label: t("glucose"), value: initialData?.latestVitals?.[0]?.glucose || "N/A", unit: "mg/dL", trend: "stable", change: "0%" },
-    { label: t("weight"), value: initialData?.latestVitals?.[0]?.weight || "N/A", unit: "kg", trend: "stable", change: "0%" },
+    { 
+      label: t("heartRate", { fallback: "Heart Rate" }), 
+      value: lastVitals.heartRate?.heartRate || "N/A", 
+      unit: "bpm", 
+      trend: "stable", 
+      change: "0%",
+      timestamp: lastVitals.heartRate?.timestamp
+    },
+    { 
+      label: t("bloodPressure"), 
+      value: lastVitals.bp ? `${lastVitals.bp.systolicBP}/${lastVitals.bp.diastolicBP}` : "N/A", 
+      unit: "mmHg", 
+      trend: "stable", 
+      change: "0%",
+      timestamp: lastVitals.bp?.timestamp
+    },
+    { 
+      label: t("spo2"), 
+      value: lastVitals.spo2?.spo2 || "N/A", 
+      unit: "%", 
+      trend: "stable", 
+      change: "0%",
+      timestamp: lastVitals.spo2?.timestamp
+    },
+    { 
+      label: t("glucose"), 
+      value: lastVitals.glucose?.glucose || "N/A", 
+      unit: "mg/dL", 
+      trend: "stable", 
+      change: "0%",
+      timestamp: lastVitals.glucose?.timestamp
+    },
+    { 
+      label: t("weight"), 
+      value: lastVitals.weight?.weight || "N/A", 
+      unit: "kg", 
+      trend: "stable", 
+      change: "0%",
+      timestamp: lastVitals.weight?.timestamp
+    },
   ];
 
   const isProfileComplete = initialData?.patientProfile?.isProfileComplete;
@@ -53,7 +92,7 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
 
   return (
     <PatientSegmentView segment={currentSegment}>
-      <div className="space-y-10">
+      <div className="space-y-6 md:space-y-10 p-4 md:p-0">
         {!isProfileComplete && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -91,7 +130,7 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
         </div>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 md:gap-10">
           
           {/* Left Column - Score & AI */}
           <div className="xl:col-span-4 space-y-10">
@@ -102,7 +141,7 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
                <HealthScoreGauge score={initialData?.currentScore || 0} />
             </Card>
 
-            <Card className="glass border-none shadow-2xl p-6">
+            <Card className="glass border-none shadow-2xl p-4 md:p-6">
               <AIAdvicePanel advices={(() => {
                 try {
                   const raw = initialData?.aiAdvice ? JSON.parse(initialData.aiAdvice) : [];
@@ -116,9 +155,9 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
           </div>
 
           {/* Right Column - Stats & Charts */}
-          <div className="xl:col-span-8 space-y-10">
+          <div className="xl:col-span-8 space-y-6 md:space-y-10">
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
               {stats.map((stat, i) => (
                 <motion.div
                   key={stat.label}
@@ -140,11 +179,18 @@ export default function DashboardUI({ userName, initialData }: { userName: strin
                        <Activity className="w-3 h-3" />}
                     </div>
                   </div>
-                  <div className="flex items-baseline gap-1 sm:gap-2 overflow-hidden">
-                    <span className="text-2xl sm:text-3xl font-black text-secondary dark:text-white group-hover:text-primary transition-colors truncate">
+                  <div className="flex flex-wrap items-baseline gap-1 sm:gap-2 overflow-hidden">
+                    <span className="text-2xl sm:text-3xl font-black text-secondary dark:text-white group-hover:text-primary transition-colors">
                       {stat.value}
                     </span>
                     <span className="text-[10px] sm:text-xs font-bold text-muted-foreground shrink-0">{stat.unit}</span>
+                    
+                    {stat.timestamp && (
+                      <div className="flex flex-col ml-auto text-right min-w-fit">
+                        <span className="text-[8px] uppercase font-bold text-muted-foreground/60 leading-none">{t("updated")}</span>
+                        <span className="text-[9px] sm:text-[10px] font-black text-primary/70">{formatRelativeTime(stat.timestamp)}</span>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}

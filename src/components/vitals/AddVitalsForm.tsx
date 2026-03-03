@@ -39,16 +39,16 @@ import { RespiratoryTimerButton } from "@/components/ui/respiratory-timer-button
 import { Spo2Questionnaire } from "@/components/vitals/Spo2Questionnaire";
 
 const vitalsSchema = z.object({
-  systolicBP: z.coerce.number().optional(),
-  diastolicBP: z.coerce.number().optional(),
-  heartRate: z.coerce.number().optional(),
-  respiratoryRate: z.coerce.number().optional(),
-  temperature: z.coerce.number().optional(),
-  spo2: z.coerce.number().optional(),
-  glucose: z.coerce.number().optional(),
-  weight: z.coerce.number().optional(),
-  height: z.coerce.number().optional(),
-  fetalHeartRate: z.coerce.number().optional(),
+  systolicBP: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  diastolicBP: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  heartRate: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  respiratoryRate: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  temperature: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  spo2: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  glucose: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  weight: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  height: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
+  fetalHeartRate: z.preprocess((val) => (val === "" ? undefined : val), z.coerce.number().optional()),
 });
 
 type VitalsFormValues = {

@@ -15,7 +15,7 @@ export async function getDashboardData() {
 
   if (!user?.patient) return null;
 
-  const [vitals, healthScores] = await Promise.all([
+  const [vitals, healthScores, lastGlucose, lastWeight, lastBP, lastHR, lastSpo2] = await Promise.all([
     prisma.vitalSign.findMany({
       where: { patientId },
       orderBy: { timestamp: "desc" },
@@ -24,6 +24,31 @@ export async function getDashboardData() {
     prisma.healthScore.findFirst({
       where: { patientId },
       orderBy: { timestamp: "desc" },
+    }),
+    prisma.vitalSign.findFirst({
+      where: { patientId, glucose: { not: null } },
+      orderBy: { timestamp: "desc" },
+      select: { glucose: true, timestamp: true }
+    }),
+    prisma.vitalSign.findFirst({
+      where: { patientId, weight: { not: null } },
+      orderBy: { timestamp: "desc" },
+      select: { weight: true, timestamp: true }
+    }),
+    prisma.vitalSign.findFirst({
+      where: { patientId, systolicBP: { not: null }, diastolicBP: { not: null } },
+      orderBy: { timestamp: "desc" },
+      select: { systolicBP: true, diastolicBP: true, timestamp: true }
+    }),
+    prisma.vitalSign.findFirst({
+      where: { patientId, heartRate: { not: null } },
+      orderBy: { timestamp: "desc" },
+      select: { heartRate: true, timestamp: true }
+    }),
+    prisma.vitalSign.findFirst({
+      where: { patientId, spo2: { not: null } },
+      orderBy: { timestamp: "desc" },
+      select: { spo2: true, timestamp: true }
     }),
   ]);
 
@@ -35,9 +60,6 @@ export async function getDashboardData() {
   const ageDate = new Date(ageDifMs);
   const age = Math.abs(ageDate.getUTCFullYear() - 1970);
 
-  // Profile is complete if gender is not OTHER and birthDate is not today (default when registered recently)
-  // or more accurately if it has been updated from defaults.
-  // Actually, let's just check if gender is not "OTHER" as a proxy if "OTHER" is the default.
   const isProfileComplete = gender !== "OTHER" && gender !== "Seleccionar" && age > 0;
 
   let calculatedSegment = user.patient.segment;
@@ -49,6 +71,13 @@ export async function getDashboardData() {
 
   return {
     latestVitals: vitals,
+    lastKnownVitals: {
+      glucose: lastGlucose,
+      weight: lastWeight,
+      bp: lastBP,
+      heartRate: lastHR,
+      spo2: lastSpo2,
+    },
     currentScore: healthScores?.score || 0,
     status: healthScores?.status || "GREEN",
     aiAdvice: healthScores?.aiAdvice,
