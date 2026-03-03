@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   HeartPulse, 
   Activity, 
@@ -31,6 +31,16 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSession, signOut } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
+import { useTranslations, useLocale } from "next-intl";
+
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { CommandMenu } from "./CommandMenu";
+import { 
+  getUnreadNotificationCount, 
+  getMyNotifications, 
+  markNotificationRead,
+  markAllNotificationsRead 
+} from "@/app/actions/patient";
 
 interface SidebarItemProps {
   href: string;
@@ -53,21 +63,13 @@ const SidebarItem = ({ href, icon: Icon, label, active }: SidebarItemProps) => (
   </Link>
 );
 
-import { LanguageSwitcher } from "./LanguageSwitcher";
-import { useTranslations, useLocale } from "next-intl";
-import { 
-  getUnreadNotificationCount, 
-  getMyNotifications, 
-  markNotificationRead,
-  markAllNotificationsRead 
-} from "@/app/actions/patient";
-import { useRouter } from "next/navigation";
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [doctorData, setDoctorData] = useState<any>(null);
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Navigation");
@@ -84,12 +86,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ]);
         if (countRes?.count !== undefined) setUnreadCount(countRes.count);
         if (notifsRes?.notifications) setNotifications(notifsRes.notifications);
+        
+        if (userRole === "DOCTOR") {
+          const { getDoctorDashboardData } = await import("@/app/actions/doctor");
+          const data = await getDoctorDashboardData();
+          setDoctorData(data);
+        }
       } catch (e) {
         // Ignore errors (e.g. if not logged in)
       }
     }
     fetchData();
-  }, [pathname]);
+  }, [pathname, userRole]);
 
   const handleMarkRead = async (id: string) => {
     await markNotificationRead(id);
@@ -116,7 +124,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
+      <CommandMenu 
+        open={isCommandMenuOpen} 
+        setOpen={setIsCommandMenuOpen} 
+        userRole={userRole}
+        doctorData={doctorData}
+      />
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
@@ -189,12 +203,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Menu className="w-5 h-5" />
             </Button>
             
-            <div className="relative max-w-md w-full hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <div 
+              className="relative max-w-md w-full hidden md:block group cursor-pointer"
+              onClick={() => setIsCommandMenuOpen(true)}
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               <Input 
                 placeholder={t("searchPlaceholder")} 
-                className="pl-10 bg-muted/50 border-none rounded-xl focus-visible:ring-primary/20"
+                className="pl-10 pr-20 bg-muted/50 border-none rounded-xl focus-visible:ring-primary/20 pointer-events-none group-hover:bg-muted transition-colors cursor-pointer"
+                readOnly
               />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 bg-background border border-border rounded text-[10px] font-bold text-muted-foreground selection:bg-transparent">
+                <span>⌘</span>
+                <span>K</span>
+              </div>
             </div>
           </div>
 

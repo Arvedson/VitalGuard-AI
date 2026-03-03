@@ -448,5 +448,28 @@
     "cancelled": "Cancelada",
     "markAllRead": "Marcar todo como leído",
     "noNotifications": "No tienes notificaciones."
+  },
+  "CommandMenu": {
+    "title": "Centro de Mando",
+    "placeholder": "Escribe un comando o busca...",
+    "navigation": "Navegación",
+    "actions": "Acciones Rápidas",
+    "patients": "Mis Pacientes",
+    "noResults": "No se encontraron resultados para",
+    "shortcuts": {
+      "dashboard": "Ir al Inicio",
+      "doctorPanel": "Panel de Control Médico",
+      "vitals": "Ir a Signos Vitales",
+      "intake": "Ir a Registro Médico",
+      "profile": "Ir al Perfil",
+      "settings": "Ir a Configuración",
+      "insights": "Ir a Insights de Salud",
+      "myDoctor": "Ir a Mi Doctor",
+      "upload": "Subir Historial Médico",
+      "sync": "Sincronizar Vitales",
+      "logout": "Cerrar Sesión",
+      "inviteCode": "Generar Código de Invitación",
+      "todayAgenda": "Ver Agenda de Hoy"
+    }
   }
 }

@@ -445,5 +445,28 @@
     "cancelled": "Cancelled",
     "markAllRead": "Mark all as read",
     "noNotifications": "You have no notifications."
+  },
+  "CommandMenu": {
+    "title": "Command Center",
+    "placeholder": "Type a command or search...",
+    "navigation": "Navigation",
+    "actions": "Quick Actions",
+    "patients": "My Patients",
+    "noResults": "No results found for",
+    "shortcuts": {
+      "dashboard": "Go to Home",
+      "doctorPanel": "Medical Control Panel",
+      "vitals": "Go to Vital Signs",
+      "intake": "Go to Medical Intake",
+      "profile": "Go to Profile",
+      "settings": "Go to Settings",
+      "insights": "Go to Health Insights",
+      "myDoctor": "Go to My Doctor",
+      "upload": "Upload Medical History",
+      "sync": "Sync Vitals",
+      "logout": "Log out",
+      "inviteCode": "Generate Invite Code",
+      "todayAgenda": "View Today's Agenda"
+    }
   }
 }
